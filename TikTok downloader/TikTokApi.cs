@@ -94,43 +94,22 @@ namespace TikTok_downloader
 
         public static TikTokVideo ParseTikTokInfo(JObject jInfo)
         {
-            JObject jOfficial = jInfo.Value<JObject>("official");
-            JObject jItemStruct = jOfficial.Value<JObject>("itemInfo").Value<JObject>("itemStruct");
-            JObject jAuthor = jItemStruct.Value<JObject>("author");
-            string userId = jAuthor.Value<string>("id");
-            string uniqueId = jAuthor.Value<string>("uniqueId");
-            string nickName = jAuthor.Value<string>("nickname");
-            TikTokAuthor tikTokAuthor = new TikTokAuthor(nickName, uniqueId, userId);
-            tikTokAuthor.AvatarImageUrl = jAuthor.Value<string>("avatarLarger");
-            tikTokAuthor.Signature = jAuthor.Value<string>("signature");
-            tikTokAuthor.IsVerifiedUser = jAuthor.Value<bool>("verified");
-
-            JObject jVideo = jItemStruct.Value<JObject>("video");
-            string videoTitle = jItemStruct.Value<string>("desc");
-            string videoId = jItemStruct.Value<string>("id");
-            TikTokVideo tikTokVideo = new TikTokVideo(videoTitle, videoId);
-            tikTokVideo.ResolutionWidth = jVideo.Value<int>("width");
-            tikTokVideo.ResolutionHeight = jVideo.Value<int>("height");
-            tikTokVideo.Bitrate = jVideo.Value<int>("bitrate");
-            long num = jItemStruct.Value<long>("createTime");
-            tikTokVideo.DateCreation = UnixTimeToDateTime(num);
-            tikTokVideo.Duration = TimeSpan.FromSeconds(jVideo.Value<int>("duration"));
-            tikTokVideo.VideoUrl = $"https://tiktok.com/@{tikTokAuthor.UniqueId}/video/{tikTokVideo.Id}";
-            tikTokVideo.ImagePreviewUrl = jVideo.Value<string>("originCover");
+            TikTokVideoInfoParserOfficial parserOfficial = new TikTokVideoInfoParserOfficial();
+            string infoOfficial = jInfo.Value<JToken>("official").ToString();
+            TikTokVideo tikTokVideoOfficial = parserOfficial.Parse(infoOfficial);
             Stream stream = new MemoryStream();
             FileDownloader d = new FileDownloader();
-            d.Url = tikTokVideo.ImagePreviewUrl;
+            d.Url = tikTokVideoOfficial.ImagePreviewUrl;
             int errorCode = d.Download(stream);
             if (errorCode == 200)
             {
-                tikTokVideo.ImageData = stream;
-                tikTokVideo.Image = Image.FromStream(stream);
+                tikTokVideoOfficial.ImageData = stream;
+                tikTokVideoOfficial.Image = Image.FromStream(stream);
             }
             else
             {
                 stream.Dispose();
             }
-            tikTokVideo.FileUrl = jVideo.Value<string>("playAddr");
 
             try
             {
@@ -139,7 +118,7 @@ namespace TikTok_downloader
                 JArray urlList = j.Value<JArray>("url_list");
                 if (urlList != null && urlList.Count > 0)
                 {
-                    tikTokVideo.FileUrlWithoutWatermark = urlList[urlList.Count - 1].ToString();
+                    tikTokVideoOfficial.FileUrlWithoutWatermark = urlList[urlList.Count - 1].ToString();
                 }
             }
             catch (Exception ex)
@@ -147,9 +126,7 @@ namespace TikTok_downloader
                 System.Diagnostics.Debug.WriteLine(ex.Message);
             }
 
-            tikTokVideo.Author = tikTokAuthor;
-
-            return tikTokVideo;
+            return tikTokVideoOfficial;
         }
 
         public static string ExtractVideoIdFromUrl(string url)
