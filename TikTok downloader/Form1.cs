@@ -22,10 +22,10 @@ namespace TikTok_downloader
         {
             config = new MainConfiguration();
             config.Load();
-            textBoxDownloadingDirPath.Text = config.downloadingDirPath;
-            textBoxFileNameFormat.Text = config.fileNameFormat;
-            textBoxBrowserExePath.Text = config.browserExePath;
-            numericUpDownMenuFontSize.Value = config.menuFontSize;
+            textBoxDownloadingDirPath.Text = config.DownloadingDirPath;
+            textBoxFileNameFormat.Text = config.FileNameFormat;
+            textBoxBrowserExePath.Text = config.BrowserExePath;
+            numericUpDownMenuFontSize.Value = config.MenuFontSize;
 
             tabControl1.SelectedTab = tabPageSearch;
         }
@@ -86,7 +86,7 @@ namespace TikTok_downloader
                 {
                     if (args.Button == MouseButtons.Right)
                     {
-                        menuImage.Font = new Font(menuImage.Font.Name, config.menuFontSize);
+                        menuImage.Font = new Font(menuImage.Font.Name, config.MenuFontSize);
                         menuImage.Show(Cursor.Position);
                     }
                 };
@@ -109,22 +109,22 @@ namespace TikTok_downloader
             FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog();
             folderBrowserDialog.Description = "Выберите папку для скачивания";
             folderBrowserDialog.SelectedPath =
-                (!string.IsNullOrEmpty(config.downloadingDirPath) && Directory.Exists(config.downloadingDirPath)) ?
-                config.downloadingDirPath : config.selfDirPath;
+                (!string.IsNullOrEmpty(config.DownloadingDirPath) && Directory.Exists(config.DownloadingDirPath)) ?
+                config.DownloadingDirPath : config.SelfDirPath;
             if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
             {
-                config.downloadingDirPath =
+                config.DownloadingDirPath =
                     folderBrowserDialog.SelectedPath.EndsWith("\\")
                     ? folderBrowserDialog.SelectedPath : folderBrowserDialog.SelectedPath + "\\";
 
-                textBoxDownloadingDirPath.Text = config.downloadingDirPath;
+                textBoxDownloadingDirPath.Text = config.DownloadingDirPath;
             }
         }
 
         private void btnSetDefaultFileNameFormat_Click(object sender, EventArgs e)
         {
             textBoxFileNameFormat.Text = FILENAME_FORMAT_DEFAULT;
-            config.fileNameFormat = FILENAME_FORMAT_DEFAULT;
+            config.FileNameFormat = FILENAME_FORMAT_DEFAULT;
         }
 
         private void btnSelectBrowser_Click(object sender, EventArgs e)
@@ -132,11 +132,11 @@ namespace TikTok_downloader
             OpenFileDialog ofd = new OpenFileDialog();
             ofd.Title = "Выберите браузер";
             ofd.Filter = "EXE-файлы|*.exe";
-            string dir = string.IsNullOrEmpty(config.browserExePath) ? config.selfDirPath : Path.GetFullPath(config.browserExePath);
+            string dir = string.IsNullOrEmpty(config.BrowserExePath) ? config.SelfDirPath : Path.GetFullPath(config.BrowserExePath);
             ofd.InitialDirectory = dir;
             if (ofd.ShowDialog() != DialogResult.Cancel)
             {
-                config.browserExePath = ofd.FileName;
+                config.BrowserExePath = ofd.FileName;
                 textBoxBrowserExePath.Text = ofd.FileName;
             }
             ofd.Dispose();
@@ -144,14 +144,14 @@ namespace TikTok_downloader
 
         private void miOpenInBrowserToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrEmpty(config.browserExePath) || string.IsNullOrWhiteSpace(config.browserExePath))
+            if (string.IsNullOrEmpty(config.BrowserExePath) || string.IsNullOrWhiteSpace(config.BrowserExePath))
             {
                 MessageBox.Show("Браузер не указан!", "Ошибка!",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
-            if (!File.Exists(config.browserExePath))
+            if (!File.Exists(config.BrowserExePath))
             {
                 MessageBox.Show("Браузер не найден!", "Ошибка!",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -159,30 +159,30 @@ namespace TikTok_downloader
             }
 
             System.Diagnostics.Process process = new System.Diagnostics.Process();
-            process.StartInfo.FileName = Path.GetFileName(config.browserExePath);
-            process.StartInfo.WorkingDirectory = Path.GetFullPath(config.browserExePath);
+            process.StartInfo.FileName = Path.GetFileName(config.BrowserExePath);
+            process.StartInfo.WorkingDirectory = Path.GetFullPath(config.BrowserExePath);
             process.StartInfo.Arguments = frameVideo.VideoInfo.VideoUrl;
             process.Start();
         }
 
         private void textBoxDownloadingDirPath_Leave(object sender, EventArgs e)
         {
-            config.downloadingDirPath = textBoxDownloadingDirPath.Text;
+            config.DownloadingDirPath = textBoxDownloadingDirPath.Text;
         }
 
         private void textBoxFileNameFormat_Leave(object sender, EventArgs e)
         {
-            config.fileNameFormat = textBoxFileNameFormat.Text;
+            config.FileNameFormat = textBoxFileNameFormat.Text;
         }
 
         private void textBoxBrowserExePath_Leave(object sender, EventArgs e)
         {
-            config.browserExePath = textBoxBrowserExePath.Text;
+            config.BrowserExePath = textBoxBrowserExePath.Text;
         }
 
         private void numericUpDownMenuFontSize_ValueChanged(object sender, EventArgs e)
         {
-            config.menuFontSize = (int)numericUpDownMenuFontSize.Value;
+            config.MenuFontSize = (int)numericUpDownMenuFontSize.Value;
         }
 
         private void CenterFrame()
@@ -229,7 +229,7 @@ namespace TikTok_downloader
             frame.btnDownload.Enabled = false;
             frame.progressBarDownload.Value = 0;
 
-            if (string.IsNullOrEmpty(config.downloadingDirPath) || string.IsNullOrWhiteSpace(config.downloadingDirPath))
+            if (string.IsNullOrEmpty(config.DownloadingDirPath) || string.IsNullOrWhiteSpace(config.DownloadingDirPath))
             {
                 MessageBox.Show("Не указана папка для скачивания!", "Ошибка!",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -237,7 +237,7 @@ namespace TikTok_downloader
                 return;
             }
 
-            if (!Directory.Exists(config.downloadingDirPath))
+            if (!Directory.Exists(config.DownloadingDirPath))
             {
                 MessageBox.Show("Папка для скачивания не существует!", "Ошибка!",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -245,7 +245,7 @@ namespace TikTok_downloader
                 return;
             }
 
-            if (string.IsNullOrEmpty(config.fileNameFormat) || string.IsNullOrWhiteSpace(config.fileNameFormat))
+            if (string.IsNullOrEmpty(config.FileNameFormat) || string.IsNullOrWhiteSpace(config.FileNameFormat))
             {
                 MessageBox.Show("Не указан формат имени файла!", "Ошибка!",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -262,7 +262,7 @@ namespace TikTok_downloader
                 ContextMenuStrip menu = BuildMenuDownloads(downloadableItems);
                 if (menu.Items.Count > 0)
                 {
-                    menu.Font = new Font(menu.Font.Name, config.menuFontSize);
+                    menu.Font = new Font(menu.Font.Name, config.MenuFontSize);
                     Point pt = frame.PointToScreen(new Point(frame.btnDownload.Left + frame.btnDownload.Width, frame.btnDownload.Top));
                     menu.Show(pt.X, pt.Y);
                 }
@@ -278,8 +278,8 @@ namespace TikTok_downloader
 
             DownloadableItem downloadableItem = (sender as ToolStripMenuItem).Tag as DownloadableItem;
             System.Diagnostics.Debug.WriteLine($"{downloadableItem.Size} | {downloadableItem.Url}");
-            string filePath = GetNumberedFileName(config.downloadingDirPath +
-                FixFileName(FormatFileName(config.fileNameFormat, downloadableItem)) + ".mp4");
+            string filePath = GetNumberedFileName(config.DownloadingDirPath +
+                FixFileName(FormatFileName(config.FileNameFormat, downloadableItem)) + ".mp4");
             int errorCode = await DownloadItem(downloadableItem, filePath);
             if (errorCode != 200)
             {

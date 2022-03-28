@@ -131,64 +131,64 @@ namespace TikTok_downloader
 
     public sealed class MainConfiguration
     {
-        public string selfDirPath;
-        public string filePath;
-        public string downloadingDirPath;
-        public string fileNameFormat;
-        public string browserExePath;
-        public int menuFontSize;
+        public string SelfDirPath { get; set; }
+        public string FilePath { get; set; }
+        public string DownloadingDirPath { get; set; }
+        public string FileNameFormat { get; set; }
+        public string BrowserExePath { get; set; }
+        public int MenuFontSize { get; set; }
 
         public MainConfiguration()
         {
-            selfDirPath = Path.GetDirectoryName(Application.ExecutablePath) + "\\";
-            filePath = selfDirPath + "TikTokDownloader_config.json";
+            SelfDirPath = Path.GetDirectoryName(Application.ExecutablePath) + "\\";
+            FilePath = SelfDirPath + "TikTokDownloader_config.json";
         }
 
         public void LoadDefaults()
         {
-            downloadingDirPath = null;
-            fileNameFormat = Helper.FILENAME_FORMAT_DEFAULT;
-            menuFontSize = 9;
-            browserExePath = "firefox.exe";
+            DownloadingDirPath = null;
+            FileNameFormat = Helper.FILENAME_FORMAT_DEFAULT;
+            MenuFontSize = 9;
+            BrowserExePath = "firefox.exe";
         }
 
         public void Load()
         {
             LoadDefaults();
-            if (File.Exists(filePath))
+            if (File.Exists(FilePath))
             {
-                JObject json = JObject.Parse(File.ReadAllText(filePath));
+                JObject json = JObject.Parse(File.ReadAllText(FilePath));
                 JToken jt = json.Value<JToken>("downloadingDirPath");
                 if (jt != null)
                 {
-                    downloadingDirPath = jt.Value<string>();
+                    DownloadingDirPath = jt.Value<string>();
                 }
                 jt = json.Value<JToken>("fileNameFormat");
                 if (jt != null)
                 {
-                    fileNameFormat = jt.Value<string>();
-                    if (string.IsNullOrEmpty(fileNameFormat))
+                    FileNameFormat = jt.Value<string>();
+                    if (string.IsNullOrEmpty(FileNameFormat))
                     {
-                        fileNameFormat = Helper.FILENAME_FORMAT_DEFAULT;
+                        FileNameFormat = Helper.FILENAME_FORMAT_DEFAULT;
                     }
                 }
                 jt = json.Value<JToken>("menuFontSize");
                 if (jt != null)
                 {
-                    menuFontSize = jt.Value<int>();
-                    if (menuFontSize < 9)
+                    MenuFontSize = jt.Value<int>();
+                    if (MenuFontSize < 9)
                     {
-                        menuFontSize = 9;
+                        MenuFontSize = 9;
                     }
-                    else if (menuFontSize > 16)
+                    else if (MenuFontSize > 16)
                     {
-                        menuFontSize = 16;
+                        MenuFontSize = 16;
                     }
                 }
                 jt = json.Value<JToken>("browserExePath");
                 if (jt != null)
                 {
-                    browserExePath = jt.Value<string>();
+                    BrowserExePath = jt.Value<string>();
                 }
             }
         }
@@ -196,15 +196,15 @@ namespace TikTok_downloader
         public void Save()
         {
             JObject json = new JObject();
-            json["downloadingDirPath"] = downloadingDirPath;
-            json["fileNameFormat"] = fileNameFormat;
-            json["menuFontSize"] = menuFontSize;
-            json["browserExePath"] = browserExePath;
-            if (File.Exists(filePath))
+            json["downloadingDirPath"] = DownloadingDirPath;
+            json["fileNameFormat"] = FileNameFormat;
+            json["menuFontSize"] = MenuFontSize;
+            json["browserExePath"] = BrowserExePath;
+            if (File.Exists(FilePath))
             {
-                File.Delete(filePath);
+                File.Delete(FilePath);
             }
-            File.WriteAllText(filePath, json.ToString());
+            File.WriteAllText(FilePath, json.ToString());
         }
     }
 }
