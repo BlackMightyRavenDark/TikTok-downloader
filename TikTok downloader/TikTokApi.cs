@@ -92,15 +92,20 @@ namespace TikTok_downloader
             return new TikTokVideoDetailsResult(null, 400);
         }
 
+        public static TikTokVideo ParseTikTokInfo(JToken jNode, ITikTokVideoInfoParser parser)
+        {
+            if (jNode == null || parser == null)
+            {
+                return null;
+            }
+            string info = jNode.ToString();
+            return parser.Parse(info);
+        }
+
         public static TikTokVideo ParseTikTokInfo(JObject jInfo)
         {
-            string infoOfficial = jInfo.Value<JToken>("official").ToString();
-            TikTokVideoInfoParserOfficial parserOfficial = new TikTokVideoInfoParserOfficial();
-            TikTokVideo tikTokVideoOfficial = parserOfficial.Parse(infoOfficial);
-
-            string infoAweme = jInfo.Value<JToken>("aweme").ToString();
-            TikTokVideoInfoParserAweMe parserAweMe = new TikTokVideoInfoParserAweMe();
-            TikTokVideo tikTokVideoAweme = parserAweMe.Parse(infoAweme);
+            TikTokVideo tikTokVideoOfficial = ParseTikTokInfo(jInfo.Value<JToken>("official"), new TikTokVideoInfoParserOfficial());
+            TikTokVideo tikTokVideoAweme = ParseTikTokInfo(jInfo.Value<JToken>("aweme"), new TikTokVideoInfoParserAweMe());
 
             if (tikTokVideoOfficial == null)
             {
