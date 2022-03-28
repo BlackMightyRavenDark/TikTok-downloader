@@ -25,6 +25,7 @@ namespace TikTok_downloader
             textBoxDownloadingDirPath.Text = config.downloadingDirPath;
             textBoxFileNameFormat.Text = config.fileNameFormat;
             textBoxBrowserExePath.Text = config.browserExePath;
+            numericUpDownMenuFontSize.Value = config.menuFontSize;
 
             tabControl1.SelectedTab = tabPageSearch;
         }
@@ -85,6 +86,7 @@ namespace TikTok_downloader
                 {
                     if (args.Button == MouseButtons.Right)
                     {
+                        menuImage.Font = new Font(menuImage.Font.Name, config.menuFontSize);
                         menuImage.Show(Cursor.Position);
                     }
                 };
@@ -178,6 +180,11 @@ namespace TikTok_downloader
             config.browserExePath = textBoxBrowserExePath.Text;
         }
 
+        private void numericUpDownMenuFontSize_ValueChanged(object sender, EventArgs e)
+        {
+            config.menuFontSize = (int)numericUpDownMenuFontSize.Value;
+        }
+
         private void CenterFrame()
         {
             if (frameVideo != null)
@@ -255,7 +262,7 @@ namespace TikTok_downloader
                 ContextMenuStrip menu = BuildMenuDownloads(downloadableItems);
                 if (menu.Items.Count > 0)
                 {
-                    menu.Font = new Font(menu.Font.Name, 11.0f);
+                    menu.Font = new Font(menu.Font.Name, config.menuFontSize);
                     Point pt = frame.PointToScreen(new Point(frame.btnDownload.Left + frame.btnDownload.Width, frame.btnDownload.Top));
                     menu.Show(pt.X, pt.Y);
                 }

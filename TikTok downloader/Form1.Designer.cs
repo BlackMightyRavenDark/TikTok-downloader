@@ -50,11 +50,14 @@ namespace TikTok_downloader
             this.panelVideoBkg = new System.Windows.Forms.Panel();
             this.menuImage = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.miOpenInBrowserToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.label5 = new System.Windows.Forms.Label();
+            this.numericUpDownMenuFontSize = new System.Windows.Forms.NumericUpDown();
             this.groupBox1.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPageSettings.SuspendLayout();
             this.tabPageSearch.SuspendLayout();
             this.menuImage.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownMenuFontSize)).BeginInit();
             this.SuspendLayout();
             // 
             // groupBox1
@@ -116,6 +119,8 @@ namespace TikTok_downloader
             // tabPageSettings
             // 
             this.tabPageSettings.BackColor = System.Drawing.SystemColors.ButtonFace;
+            this.tabPageSettings.Controls.Add(this.numericUpDownMenuFontSize);
+            this.tabPageSettings.Controls.Add(this.label5);
             this.tabPageSettings.Controls.Add(this.btnSelectBrowser);
             this.tabPageSettings.Controls.Add(this.btnSetDefaultFileNameFormat);
             this.tabPageSettings.Controls.Add(this.btnSelectDownloadingDirPath);
@@ -259,6 +264,38 @@ namespace TikTok_downloader
             this.miOpenInBrowserToolStripMenuItem.Text = "Открыть в браузере";
             this.miOpenInBrowserToolStripMenuItem.Click += new System.EventHandler(this.miOpenInBrowserToolStripMenuItem_Click);
             // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(6, 147);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(131, 13);
+            this.label5.TabIndex = 9;
+            this.label5.Text = "Размер шрифта в меню:";
+            // 
+            // numericUpDownMenuFontSize
+            // 
+            this.numericUpDownMenuFontSize.Location = new System.Drawing.Point(143, 145);
+            this.numericUpDownMenuFontSize.Maximum = new decimal(new int[] {
+            16,
+            0,
+            0,
+            0});
+            this.numericUpDownMenuFontSize.Minimum = new decimal(new int[] {
+            9,
+            0,
+            0,
+            0});
+            this.numericUpDownMenuFontSize.Name = "numericUpDownMenuFontSize";
+            this.numericUpDownMenuFontSize.Size = new System.Drawing.Size(38, 20);
+            this.numericUpDownMenuFontSize.TabIndex = 10;
+            this.numericUpDownMenuFontSize.Value = new decimal(new int[] {
+            9,
+            0,
+            0,
+            0});
+            this.numericUpDownMenuFontSize.ValueChanged += new System.EventHandler(this.numericUpDownMenuFontSize_ValueChanged);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -281,6 +318,7 @@ namespace TikTok_downloader
             this.tabPageSettings.PerformLayout();
             this.tabPageSearch.ResumeLayout(false);
             this.menuImage.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownMenuFontSize)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -306,6 +344,8 @@ namespace TikTok_downloader
         private System.Windows.Forms.Button btnSelectDownloadingDirPath;
         private System.Windows.Forms.ContextMenuStrip menuImage;
         private System.Windows.Forms.ToolStripMenuItem miOpenInBrowserToolStripMenuItem;
+        private System.Windows.Forms.NumericUpDown numericUpDownMenuFontSize;
+        private System.Windows.Forms.Label label5;
     }
 }
 

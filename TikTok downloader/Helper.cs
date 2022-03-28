@@ -136,6 +136,7 @@ namespace TikTok_downloader
         public string downloadingDirPath;
         public string fileNameFormat;
         public string browserExePath;
+        public int menuFontSize;
 
         public MainConfiguration()
         {
@@ -147,6 +148,7 @@ namespace TikTok_downloader
         {
             downloadingDirPath = null;
             fileNameFormat = Helper.FILENAME_FORMAT_DEFAULT;
+            menuFontSize = 9;
             browserExePath = "firefox.exe";
         }
 
@@ -170,6 +172,19 @@ namespace TikTok_downloader
                         fileNameFormat = Helper.FILENAME_FORMAT_DEFAULT;
                     }
                 }
+                jt = json.Value<JToken>("menuFontSize");
+                if (jt != null)
+                {
+                    menuFontSize = jt.Value<int>();
+                    if (menuFontSize < 9)
+                    {
+                        menuFontSize = 9;
+                    }
+                    else if (menuFontSize > 16)
+                    {
+                        menuFontSize = 16;
+                    }
+                }
                 jt = json.Value<JToken>("browserExePath");
                 if (jt != null)
                 {
@@ -183,6 +198,7 @@ namespace TikTok_downloader
             JObject json = new JObject();
             json["downloadingDirPath"] = downloadingDirPath;
             json["fileNameFormat"] = fileNameFormat;
+            json["menuFontSize"] = menuFontSize;
             json["browserExePath"] = browserExePath;
             if (File.Exists(filePath))
             {
