@@ -9,6 +9,10 @@ namespace TikTok_downloader
     {
         public TikTokVideo Parse(string jsonString)
         {
+            if (string.IsNullOrEmpty(jsonString) || string.IsNullOrWhiteSpace(jsonString))
+            {
+                return null;
+            }
             JObject json = JObject.Parse(jsonString);
             if (json == null)
             {

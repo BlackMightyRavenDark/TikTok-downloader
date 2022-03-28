@@ -9,6 +9,10 @@ namespace TikTok_downloader
     {
         public TikTokVideo Parse(string jsonString)
         {
+            if (string.IsNullOrEmpty(jsonString) || string.IsNullOrWhiteSpace(jsonString))
+            {
+                return null;
+            }
             JObject json = JObject.Parse(jsonString);
             if (json == null)
             {
@@ -45,7 +49,6 @@ namespace TikTok_downloader
             tikTokVideo.FileUrl = jVideo.Value<string>("playAddr");
             tikTokVideo.FileUrlWithoutWatermark = null;
 
-            
             Stream stream = new MemoryStream();
             FileDownloader d = new FileDownloader();
             d.Url = tikTokVideo.ImagePreviewUrl;
