@@ -5,7 +5,7 @@ using Newtonsoft.Json.Linq;
 
 namespace TikTok_downloader
 {
-    public class TikTokVideoInfoParserOfficial : ITikTokVideoInfoParser
+    public class TikTokVideoInfoParserAweMe : ITikTokVideoInfoParser
     {
         public TikTokVideo Parse(string jsonString)
         {
@@ -19,8 +19,8 @@ namespace TikTok_downloader
 
         public TikTokVideo Parse(JObject info)
         {
-            JObject jItemStruct = info.Value<JObject>("itemInfo").Value<JObject>("itemStruct");
-            JObject jAuthor = jItemStruct.Value<JObject>("author");
+            JObject jAwemeDetails = info.Value<JArray>("aweme_details")[0] as JObject;
+            JObject jAuthor = jAwemeDetails.Value<JObject>("author");
             string userId = jAuthor.Value<string>("id");
             string uniqueId = jAuthor.Value<string>("uniqueId");
             string nickName = jAuthor.Value<string>("nickname");
@@ -29,23 +29,23 @@ namespace TikTok_downloader
             tikTokAuthor.Signature = jAuthor.Value<string>("signature");
             tikTokAuthor.IsVerifiedUser = jAuthor.Value<bool>("verified");
 
-            JObject jVideo = jItemStruct.Value<JObject>("video");
-            string videoTitle = jItemStruct.Value<string>("desc");
-            string videoId = jItemStruct.Value<string>("id");
+            JObject jVideo = jAwemeDetails.Value<JObject>("video");
+            string videoTitle = jAwemeDetails.Value<string>("desc");
+            string videoId = jAwemeDetails.Value<string>("id");
             TikTokVideo tikTokVideo = new TikTokVideo(videoTitle, videoId);
             tikTokVideo.Author = tikTokAuthor;
             tikTokVideo.ResolutionWidth = jVideo.Value<int>("width");
             tikTokVideo.ResolutionHeight = jVideo.Value<int>("height");
             tikTokVideo.Bitrate = jVideo.Value<int>("bitrate");
-            long num = jItemStruct.Value<long>("createTime");
+            long num = jAwemeDetails.Value<long>("createTime");
             tikTokVideo.DateCreation = TikTokApi.UnixTimeToDateTime(num);
             tikTokVideo.Duration = TimeSpan.FromSeconds(jVideo.Value<int>("duration"));
             tikTokVideo.VideoUrl = $"https://tiktok.com/@{tikTokAuthor.UniqueId}/video/{tikTokVideo.Id}";
             tikTokVideo.ImagePreviewUrl = jVideo.Value<string>("originCover");
-            tikTokVideo.FileUrl = jVideo.Value<string>("playAddr");
-            tikTokVideo.FileUrlWithoutWatermark = null;
+            tikTokVideo.FileUrl = null;
+            JArray jUrls = jVideo.Value<JObject>("play_addr").Value<JArray>("url_list");
+            tikTokVideo.FileUrlWithoutWatermark = jUrls[jUrls.Count - 1].ToString();
 
-            
             Stream stream = new MemoryStream();
             FileDownloader d = new FileDownloader();
             d.Url = tikTokVideo.ImagePreviewUrl;

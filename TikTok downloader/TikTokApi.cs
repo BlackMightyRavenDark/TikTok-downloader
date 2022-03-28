@@ -94,36 +94,21 @@ namespace TikTok_downloader
 
         public static TikTokVideo ParseTikTokInfo(JObject jInfo)
         {
-            TikTokVideoInfoParserOfficial parserOfficial = new TikTokVideoInfoParserOfficial();
             string infoOfficial = jInfo.Value<JToken>("official").ToString();
+            TikTokVideoInfoParserOfficial parserOfficial = new TikTokVideoInfoParserOfficial();
             TikTokVideo tikTokVideoOfficial = parserOfficial.Parse(infoOfficial);
-            Stream stream = new MemoryStream();
-            FileDownloader d = new FileDownloader();
-            d.Url = tikTokVideoOfficial.ImagePreviewUrl;
-            int errorCode = d.Download(stream);
-            if (errorCode == 200)
-            {
-                tikTokVideoOfficial.ImageData = stream;
-                tikTokVideoOfficial.Image = Image.FromStream(stream);
-            }
-            else
-            {
-                stream.Dispose();
-            }
 
-            try
+            string infoAweme = jInfo.Value<JToken>("aweme").ToString();
+            TikTokVideoInfoParserAweMe parserAweMe = new TikTokVideoInfoParserAweMe();
+            TikTokVideo tikTokVideoAweme = parserAweMe.Parse(infoAweme);
+
+            if (tikTokVideoOfficial == null)
             {
-                JObject jAweme = jInfo.Value<JObject>("aweme");
-                JObject j = jAweme.Value<JArray>("aweme_details")[0].Value<JObject>("video").Value<JObject>("play_addr");
-                JArray urlList = j.Value<JArray>("url_list");
-                if (urlList != null && urlList.Count > 0)
-                {
-                    tikTokVideoOfficial.FileUrlWithoutWatermark = urlList[urlList.Count - 1].ToString();
-                }
+                return tikTokVideoAweme;
             }
-            catch (Exception ex)
+            else if (tikTokVideoAweme != null)
             {
-                System.Diagnostics.Debug.WriteLine(ex.Message);
+                tikTokVideoOfficial.FileUrlWithoutWatermark = tikTokVideoAweme.FileUrlWithoutWatermark;
             }
 
             return tikTokVideoOfficial;
