@@ -266,6 +266,16 @@ namespace TikTok_downloader
                     Point pt = frame.PointToScreen(new Point(frame.btnDownload.Left + frame.btnDownload.Width, frame.btnDownload.Top));
                     menu.Show(pt.X, pt.Y);
                 }
+                else
+                {
+                    MessageBox.Show("Ссылки для скачивания не найдены!", "Ошибка!",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            else
+            {
+                MessageBox.Show("Ссылки для скачивания не найдены!", "Ошибка!",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
             frame.btnDownload.Text = "Скачать";
