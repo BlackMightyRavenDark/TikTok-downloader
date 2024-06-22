@@ -2,6 +2,7 @@
 using System.Collections.Specialized;
 using System.IO;
 using System.Drawing;
+using System.Text.RegularExpressions;
 using Newtonsoft.Json.Linq;
 
 namespace TikTok_downloader
@@ -121,26 +122,14 @@ namespace TikTok_downloader
 
         public static string ExtractVideoIdFromUrl(string url)
         {
-            try
+            string pattern = @".+(tiktok\.com).+/video/(\d+)";
+            Regex regex = new Regex(pattern);
+            MatchCollection matches = regex.Matches(url);
+            if (matches.Count > 0 && matches[0].Groups.Count > 2)
             {
-                Uri uri = new Uri(url);
-                if (!uri.Host.ToLower().EndsWith("tiktok.com"))
-                {
-                    return null;
-                }
-                int n = uri.OriginalString.IndexOf("/video/");
-                if (n < 0)
-                {
-                    return null;
-                }
-                string id = uri.OriginalString.Substring(n + 7);
-                return id;
+                return matches[0].Groups[2].Value;
             }
-            catch (Exception e)
-            {
-                System.Diagnostics.Debug.WriteLine(e.Message);
-                return url;
-            }
+            return url;
         }
 
         public static DateTime UnixTimeToDateTime(long unixTime)
