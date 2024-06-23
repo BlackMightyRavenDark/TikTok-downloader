@@ -10,7 +10,7 @@ namespace TikTok_downloader
 		public string Url { get; set; }
 		public string UserAgent { get; set; }
 		public long StreamSize { get; private set; } = 0L;
-		private long _bytesTransfered = 0L;
+		private long _bytesTransferred = 0L;
 		private long _rangeFrom = 0L;
 		private long _rangeTo = 0L;
 		public int ProgressUpdateInterval { get; set; } = 10;
@@ -41,7 +41,7 @@ namespace TikTok_downloader
 		{          
 			Stopped = false;
 			LastErrorCode = DOWNLOAD_ERROR_UNKNOWN;
-			_bytesTransfered = 0L;
+			_bytesTransferred = 0L;
 			StreamSize = stream.Length;
 
 			Connecting?.Invoke(this, Url);
@@ -73,7 +73,7 @@ namespace TikTok_downloader
 			long size = content.Length;
 			content.Dispose();
 
-			WorkFinished?.Invoke(this, _bytesTransfered, size, LastErrorCode);
+			WorkFinished?.Invoke(this, _bytesTransferred, size, LastErrorCode);
 
 			return LastErrorCode;
 		}
@@ -84,7 +84,7 @@ namespace TikTok_downloader
 
 			Stopped = false;
 			LastErrorCode = DOWNLOAD_ERROR_UNKNOWN;
-			_bytesTransfered = 0L;
+			_bytesTransferred = 0L;
 			StreamSize = 0L;
 
 			WebContent content = new WebContent();
@@ -114,7 +114,7 @@ namespace TikTok_downloader
 			content.Dispose();
 			memoryStream.Dispose();
 
-			WorkFinished?.Invoke(this, _bytesTransfered, size, LastErrorCode);
+			WorkFinished?.Invoke(this, _bytesTransferred, size, LastErrorCode);
 
 			return LastErrorCode;
 		}
@@ -135,11 +135,11 @@ namespace TikTok_downloader
 						break;
 					}
 					stream.Write(buf, 0, bytesRead);
-					_bytesTransfered += bytesRead;
+					_bytesTransferred += bytesRead;
 					StreamSize = stream.Length;
 					if (WorkProgress != null && (ProgressUpdateInterval == 0 || iter++ >= ProgressUpdateInterval || StreamSize == content.Length))
 					{
-						WorkProgress.Invoke(this, _bytesTransfered, content.Length);
+						WorkProgress.Invoke(this, _bytesTransferred, content.Length);
 						iter = 0;
 					}
 					if (CancelTest != null)
@@ -165,7 +165,7 @@ namespace TikTok_downloader
 			}
 			else if (errorCode == 200)
 			{
-				if (content.Length >= 0L && _bytesTransfered != content.Length)
+				if (content.Length >= 0L && _bytesTransferred != content.Length)
 				{
 					LastErrorCode = DOWNLOAD_ERROR_INCOMPLETE_DATA_READ;
 				}
