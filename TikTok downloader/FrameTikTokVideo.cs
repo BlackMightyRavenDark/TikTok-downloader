@@ -37,7 +37,8 @@ namespace TikTok_downloader
 			}
 			if (VideoInfo.DateCreation > DateTime.MinValue)
 			{
-				string dateString = VideoInfo.DateCreation.ToString();
+				string dateString = VideoInfo.DateCreation.IsGmt() ?
+					$"{VideoInfo.DateCreation} GMT" : VideoInfo.DateCreation.ToString();
 				SizeF sz = e.Graphics.MeasureString(dateString, Font);
 				float x = pictureBoxImagePreview.Width - sz.Width;
 				float y = pictureBoxImagePreview.Height - sz.Height;

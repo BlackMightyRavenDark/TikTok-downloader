@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 using Newtonsoft.Json.Linq;
@@ -87,6 +88,11 @@ namespace TikTok_downloader
 			int x = dest.Width / 2 - source.Width / 2;
 			int y = dest.Height / 2 - source.Height / 2;
 			return new Rectangle(x, y, source.Width, source.Height);
+		}
+
+		public static bool IsGmt(this DateTime dateTime)
+		{
+			return dateTime.Kind == DateTimeKind.Utc;
 		}
 
 		public static string FormatSize(long n)
