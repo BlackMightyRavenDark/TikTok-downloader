@@ -8,11 +8,11 @@ using Newtonsoft.Json.Linq;
 
 namespace TikTok_downloader
 {
-	public class TikTokApi
+	public static class TikTokApi
 	{
 		public const string TIKTOK_API_VIDEO_INFO_URL = "https://tikwm.com/api";
 
-		public string GetVideoInfoRequestUrl(string videoUrl, bool hd = true)
+		public static string GetVideoInfoRequestUrl(string videoUrl, bool hd = true)
 		{
 			NameValueCollection query = HttpUtility.ParseQueryString(string.Empty);
 			query.Add("url", HttpUtility.UrlEncode(videoUrl));
@@ -25,7 +25,7 @@ namespace TikTok_downloader
 			return url;
 		}
 
-		public TikTokVideoDetailsResult GetVideoDetails(string videoUrl)
+		public static TikTokVideoDetailsResult GetVideoDetails(string videoUrl)
 		{
 			try
 			{

@@ -64,11 +64,7 @@ namespace TikTok_downloader
 				return;
 			}
 
-			TikTokVideoDetailsResult videoDetailsResult = await Task.Run(() =>
-			{
-				TikTokApi api = new TikTokApi();
-				return api.GetVideoDetails(url);
-			});
+			TikTokVideoDetailsResult videoDetailsResult = await Task.Run(() => TikTokApi.GetVideoDetails(url));
 			if (videoDetailsResult.ErrorCode == 200)
 			{
 				TikTokVideo tikTokVideo = await Task.Run(() => TikTokApi.ParseTikTokInfo(videoDetailsResult.Details));
