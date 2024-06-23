@@ -9,7 +9,7 @@ namespace TikTok_downloader
 	public static class Helper
 	{
 		public const string FILENAME_FORMAT_DEFAULT =
-			"<channel_name> [<year>-<month>-<day> <hour>-<minute>-<second>] <video_title> [<video_id>]";
+			"<channel_name> [<year>-<month>-<day> <hour>-<minute>-<second><GMT>] <video_title> [<video_id>]";
 
 		public static string LeadZero(int n)
 		{
@@ -25,6 +25,7 @@ namespace TikTok_downloader
 				.Replace("<hour>", LeadZero(downloadableItem.Video.DateCreation.Hour))
 				.Replace("<minute>", LeadZero(downloadableItem.Video.DateCreation.Minute))
 				.Replace("<second>", LeadZero(downloadableItem.Video.DateCreation.Second))
+				.Replace("<GMT>", " GMT")
 				.Replace("<video_id>", downloadableItem.Video.Id);
 			if (!string.IsNullOrEmpty(downloadableItem.Video.Title) && !string.IsNullOrWhiteSpace(downloadableItem.Video.Title))
 			{
