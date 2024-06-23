@@ -4,6 +4,8 @@ using System.IO;
 using System.Drawing;
 using System.Web;
 using Newtonsoft.Json.Linq;
+using System.Threading.Tasks;
+using System.Runtime.InteropServices.WindowsRuntime;
 
 namespace TikTok_downloader
 {
@@ -85,8 +87,8 @@ namespace TikTok_downloader
 				string authorId = jAuthor.Value<string>("id");
 				string authorUniqueId = jAuthor.Value<string>("unique_id");
 				string authorNickName = jAuthor.Value<string>("nickname");
-				video.Author = new TikTokAuthor(authorNickName, authorUniqueId, authorId);
-				video.Author.AvatarImageUrl = jAuthor.Value<string>("avatar");
+				string authorAvatarImageUrl = jAuthor.Value<string>("avatar");
+				video.Author = new TikTokAuthor(authorNickName, authorUniqueId, authorId, authorAvatarImageUrl);
 			}
 
 			return video;
@@ -99,16 +101,16 @@ namespace TikTok_downloader
 		}
 	}
 
-	public class TikTokVideo
+	public class TikTokVideo : IDisposable
 	{
-		public string Title { get; private set; }
-		public string Id { get; private set; }
+		public string Title { get; }
+		public string Id { get; }
 		public long FileSize { get; set; }
 		public DateTime DateCreation { get; set; }
 		public TimeSpan Duration { get; set; }
 		public string ImagePreviewUrl { get; set; }
-		public Stream ImageData { get; set; }
-		public Image ImagePreview { get; set; }
+		public Stream ImagePreviewData { get; private set; }
+		public Image ImagePreview { get; private set; }
 		public string VideoUrl { get; set; }
 		public string FileUrlWithoutWatermark { get; set; } = null;
 		public TikTokAuthor Author { get; set; }
@@ -119,33 +121,76 @@ namespace TikTok_downloader
 			Id = videoId;
 		}
 
-		~TikTokVideo()
+		public void Dispose()
+		{
+			DisposeImagePreviewData();
+			DisposeImagePreview();
+		}
+
+		public void DisposeImagePreview()
 		{
 			if (ImagePreview != null)
 			{
 				ImagePreview.Dispose();
 				ImagePreview = null;
 			}
-			if (ImageData != null)
+		}
+
+        public void DisposeImagePreviewData()
+        {
+            if (ImagePreviewData != null)
+            {
+                ImagePreviewData.Close();
+                ImagePreviewData = null;
+            }
+        }
+        
+		public async Task<int> UpdateImagePreview()
+		{
+			DisposeImagePreview();
+			DisposeImagePreviewData();
+
+			if (string.IsNullOrEmpty(ImagePreviewUrl) || string.IsNullOrWhiteSpace(ImagePreviewUrl))
 			{
-				ImageData.Dispose();
-				ImageData = null;
+				return 400;
 			}
+
+			ImagePreviewData = new MemoryStream();
+			return await Task.Run(() =>
+			{
+				try
+				{
+					FileDownloader d = new FileDownloader() { Url = ImagePreviewUrl };
+					int errorCode = d.Download(ImagePreviewData);
+					if (errorCode == 200)
+					{
+						ImagePreview = Image.FromStream(ImagePreviewData);
+					}
+					return errorCode;
+				} catch (Exception ex)
+				{
+					System.Diagnostics.Debug.WriteLine(ex.Message);
+					DisposeImagePreview();
+					DisposeImagePreviewData();
+					return ex.HResult;
+				}
+			});
 		}
 	}
 
 	public class TikTokAuthor
 	{
-		public string NickName { get; private set; }
-		public string UniqueId { get; private set; }
-		public string UserId { get; private set; }
-		public string AvatarImageUrl { get; set; }
+		public string NickName { get; }
+		public string UniqueId { get; }
+		public string UserId { get; }
+		public string AvatarImageUrl { get; }
 
-		public TikTokAuthor(string nickName, string uniqueId, string userId)
+		public TikTokAuthor(string nickName, string uniqueId, string userId, string avatarImageUrl)
 		{
 			NickName = nickName;
 			UniqueId = uniqueId;
 			UserId = userId;
+			AvatarImageUrl = avatarImageUrl;
 		}
 	}
 

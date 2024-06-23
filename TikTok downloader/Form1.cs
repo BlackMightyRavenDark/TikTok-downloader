@@ -64,21 +64,16 @@ namespace TikTok_downloader
 				return;
 			}
 
-			TikTokApi api = new TikTokApi();
-			TikTokVideoDetailsResult videoDetailsResult = await Task.Run(() => api.GetVideoDetails(url));
+			TikTokVideoDetailsResult videoDetailsResult = await Task.Run(() =>
+			{
+				TikTokApi api = new TikTokApi();
+				return api.GetVideoDetails(url);
+			});
 			if (videoDetailsResult.ErrorCode == 200)
 			{
 				TikTokVideo tikTokVideo = await Task.Run(() => TikTokApi.ParseTikTokInfo(videoDetailsResult.Details));
-				await Task.Run(() =>
-				{
-					FileDownloader d = new FileDownloader() { Url = tikTokVideo.ImagePreviewUrl };
-					Stream stream = new MemoryStream();
-					if (d.Download(stream) == 200)
-					{
-						tikTokVideo.ImagePreview = Image.FromStream(stream);
-					}
-					stream.Close();
-				});
+				_ = await tikTokVideo.UpdateImagePreview();
+
 				frameVideo = new FrameTikTokVideo(tikTokVideo);
 				frameVideo.Parent = panelVideoBkg;
 				frameVideo.DownloadButtonPressed += OnDownloadButtonClick;
@@ -113,9 +108,7 @@ namespace TikTok_downloader
 				config.DownloadingDirPath : config.SelfDirPath;
 			if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
 			{
-				config.DownloadingDirPath =
-					folderBrowserDialog.SelectedPath.EndsWith("\\")
-					? folderBrowserDialog.SelectedPath : folderBrowserDialog.SelectedPath + "\\";
+				config.DownloadingDirPath = folderBrowserDialog.SelectedPath;
 
 				textBoxDownloadingDirPath.Text = config.DownloadingDirPath;
 			}
@@ -199,7 +192,8 @@ namespace TikTok_downloader
 			if (FileDownloader.GetUrlContentLength(tikTokVideo.FileUrlWithoutWatermark, out long fileSize) == 200)
 			{
 				tikTokVideo.FileSize = fileSize;
-				res.Add(new DownloadableItem(tikTokVideo.FileUrlWithoutWatermark, fileSize, false, tikTokVideo));
+				DownloadableItem item = new DownloadableItem(tikTokVideo.FileUrlWithoutWatermark, fileSize, false, tikTokVideo);
+				res.Add(item);
 			}
 			return res;
 		}
@@ -209,11 +203,9 @@ namespace TikTok_downloader
 			ContextMenuStrip menu = new ContextMenuStrip();
 			foreach (DownloadableItem downloadableItem in items)
 			{
-				string formattedSize = FormatSize(downloadableItem.Size);
-				string itemTitle = downloadableItem.IsLogoPresent ? 
-					$"С логотипом ({formattedSize})" : $"Без логотипа ({formattedSize})";
-				ToolStripMenuItem menuItem = new ToolStripMenuItem(itemTitle);
-				menuItem.Tag = downloadableItem;
+				string formattedFileSize = FormatSize(downloadableItem.Size);
+				string itemTitle = $"{(downloadableItem.IsLogoPresent ? "С логотипом" : "Без логотипа")} ({formattedFileSize})";
+				ToolStripMenuItem menuItem = new ToolStripMenuItem(itemTitle) { Tag = downloadableItem };
 				menuItem.Click += OnMenuDownloadItemClick;
 				menu.Items.Add(menuItem);
 			}
@@ -284,8 +276,8 @@ namespace TikTok_downloader
 			frameVideo.btnDownload.Enabled = false;
 
 			DownloadableItem downloadableItem = (sender as ToolStripMenuItem).Tag as DownloadableItem;
-			string filePath = GetNumberedFileName(config.DownloadingDirPath +
-				FixFileName(FormatFileName(config.FileNameFormat, downloadableItem)) + ".mp4");
+			string fixedFileName = $"{FixFileName(FormatFileName(config.FileNameFormat, downloadableItem))}.mp4";
+			string filePath = GetNumberedFileName(Path.Combine(config.DownloadingDirPath, fixedFileName));
 			int errorCode = await DownloadItem(downloadableItem, filePath);
 			if (errorCode != 200)
 			{

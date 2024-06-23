@@ -46,7 +46,7 @@ namespace TikTok_downloader
 				e.Graphics.FillRectangle(Brushes.Black, r);
 				e.Graphics.DrawString(dateString, Font, Brushes.White, x, y);
 			}
-			string t = "Длина: " + VideoInfo.Duration.ToString("m':'ss");
+			string t = $"Длина: {VideoInfo.Duration:m':'ss}";
 			float yPos = 0.0f;
 			SizeF size = e.Graphics.MeasureString(t, Font);
 			RectangleF rect = new RectangleF(0.0f, yPos, size.Width, size.Height);
@@ -54,7 +54,7 @@ namespace TikTok_downloader
 			e.Graphics.DrawString(t, Font, Brushes.White, 0.0f, yPos);
 			yPos += size.Height;
 
-			t = "Автор: " + VideoInfo.Author.NickName;
+			t = $"Автор: {VideoInfo.Author.NickName}";
 			size = e.Graphics.MeasureString(t, Font);
 			rect = new RectangleF(0.0f, yPos, size.Width, size.Height);
 			e.Graphics.FillRectangle(Brushes.Black, rect);
