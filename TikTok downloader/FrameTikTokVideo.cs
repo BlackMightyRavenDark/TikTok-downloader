@@ -37,8 +37,7 @@ namespace TikTok_downloader
 			}
 			if (VideoInfo.DateCreation > DateTime.MinValue)
 			{
-				string dateString = VideoInfo.DateCreation.ToString("yyyy.MM.dd HH:mm:ss");
-				if (VideoInfo.DateCreation.IsGmt()) { dateString += " GMT"; }
+				string dateString = Helper.FormatDateTime(VideoInfo.DateCreation);
 				SizeF sz = e.Graphics.MeasureString(dateString, Font);
 				float x = pictureBoxImagePreview.Width - sz.Width;
 				float y = pictureBoxImagePreview.Height - sz.Height;

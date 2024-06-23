@@ -96,6 +96,12 @@ namespace TikTok_downloader
 			return dateTime.Kind == DateTimeKind.Utc;
 		}
 
+		public static string FormatDateTime(DateTime dateTime)
+        {
+			string t = dateTime.ToString("yyyy.MM.dd HH:mm:ss");
+			return dateTime.IsGmt() ? $"{t} GMT" : t;
+        }
+
 		public static string FormatSize(long n)
 		{
 			const int KB = 1000;
