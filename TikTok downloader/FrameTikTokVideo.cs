@@ -29,11 +29,11 @@ namespace TikTok_downloader
 
         private void pictureBoxImagePreview_Paint(object sender, PaintEventArgs e)
         {
-            if (VideoInfo.Image != null)
+            if (VideoInfo.ImagePreview != null)
             {
-                Rectangle imageRect = new Rectangle(0, 0, VideoInfo.Image.Width, VideoInfo.Image.Height);
+                Rectangle imageRect = new Rectangle(0, 0, VideoInfo.ImagePreview.Width, VideoInfo.ImagePreview.Height);
                 Rectangle imageRectResized = imageRect.ResizeTo(pictureBoxImagePreview.ClientSize).CenterIn(pictureBoxImagePreview.ClientRectangle);
-                e.Graphics.DrawImage(VideoInfo.Image, imageRectResized);
+                e.Graphics.DrawImage(VideoInfo.ImagePreview, imageRectResized);
             }
             if (VideoInfo.DateCreation > DateTime.MinValue)
             {
@@ -59,12 +59,6 @@ namespace TikTok_downloader
             e.Graphics.FillRectangle(Brushes.Black, rect);
             e.Graphics.DrawString(t, Font, Brushes.White, 0.0f, yPos);
             yPos += size.Height;
-
-            t = $"Битрейт: ~{VideoInfo.Bitrate / 1000} kbit/s";
-            size = e.Graphics.MeasureString(t, Font);
-            rect = new RectangleF(0.0f, yPos, size.Width, size.Height);
-            e.Graphics.FillRectangle(Brushes.Black, rect);
-            e.Graphics.DrawString(t, Font, Brushes.White, 0.0f, yPos);
         }
 
         private void btnDownload_Click(object sender, EventArgs e)

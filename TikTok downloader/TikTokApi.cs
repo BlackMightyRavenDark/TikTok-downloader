@@ -2,88 +2,42 @@
 using System.Collections.Specialized;
 using System.IO;
 using System.Drawing;
-using System.Text.RegularExpressions;
+using System.Web;
 using Newtonsoft.Json.Linq;
 
 namespace TikTok_downloader
 {
     public class TikTokApi
     {
-        public const string TIKTOK_DETAIL_ENDPOINT_URL = "https://m.tiktok.com/api/item/detail";
-        public const string TIKTOK_AWEME_DETAIL_ENDPOINT_URL = "https://api.tiktokv.com/aweme/v1/multi/aweme/detail";
+        public const string TIKTOK_API_VIDEO_INFO_URL = "https://tikwm.com/api";
 
-        public string GetVideoInfoRequestUrl(string videoId)
+        public string GetVideoInfoRequestUrl(string videoUrl, bool hd = true)
         {
-            NameValueCollection query = System.Web.HttpUtility.ParseQueryString(string.Empty);
-            query.Add("app_name", "tiktok_web");
-            query.Add("device_platform", "web_mobile");
-            query.Add("screen_width", "1567");
-            query.Add("screen_height", "591");
-            query.Add("focus_state", "true");
-            query.Add("is_fullscreen", "false");
-            query.Add("itemId", videoId);
+            NameValueCollection query = HttpUtility.ParseQueryString(string.Empty);
+            query.Add("url", HttpUtility.UrlEncode(videoUrl));
+            if (hd)
+            {
+                query.Add("hd", "1");
+            }
 
-            string url = $"{TIKTOK_DETAIL_ENDPOINT_URL}/?{query}";
+            string url = $"{TIKTOK_API_VIDEO_INFO_URL}/?{query}";
             return url;
         }
 
-        public string GetAwemeVideoInfoRequestUrl(string videoId)
-        {
-            string url = $"{TIKTOK_AWEME_DETAIL_ENDPOINT_URL}/?aweme_ids=%5B{videoId}%5D";
-            return url;
-        }
-
-        public TikTokVideoDetailsResult GetVideoDetails(string videoId)
+        public TikTokVideoDetailsResult GetVideoDetails(string videoUrl)
         {
             try
             {
                 JObject jResult = new JObject();
-                string url = GetVideoInfoRequestUrl(videoId);
                 FileDownloader d = new FileDownloader();
-                d.Url = url;
+                d.Url = GetVideoInfoRequestUrl(videoUrl);
                 string userAgent = "Mozilla/5.0 (iPhone; CPU iPhone OS 12_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.4 Mobile/15E148 Safari/604.1";
                 d.UserAgent = userAgent;
-                int errorCodeOfficial = d.DownloadString(out string response);
-                JObject jOfficial = null;
-                if (errorCodeOfficial == 200)
+                int errorCode = d.DownloadString(out string response);
+                if (errorCode == 200)
                 {
-                    jOfficial = JObject.Parse(response);
-
-                    //checking response
-                    int responseStatusCode = jOfficial.Value<int>("statusCode");
-                    if (responseStatusCode != 0)
-                    {
-                        jOfficial = null;
-                        errorCodeOfficial = responseStatusCode;
-                    }
-                }
-                jResult.Add(new JProperty("official", jOfficial));
-
-                url = GetAwemeVideoInfoRequestUrl(videoId);
-                d.Url = url;
-                int errorCodeAweme = d.DownloadString(out string responseAweme);
-                JObject jAweme = null;
-                if (errorCodeAweme == 200)
-                {
-                    jAweme = JObject.Parse(responseAweme);
-
-                    //checking response
-                    int responseStatusCode = jAweme.Value<int>("status_code");
-                    if (responseStatusCode != 0)
-                    {
-                        jAweme = null;
-                        errorCodeAweme = responseStatusCode;
-                    }
-                }
-                jResult.Add(new JProperty("aweme", jAweme));
-
-                if (errorCodeOfficial == 200 || errorCodeAweme == 200)
-                {
-                    return new TikTokVideoDetailsResult(jResult, 200);
-                }
-                else
-                {
-                    return new TikTokVideoDetailsResult(null, 404);
+                    JObject json = JObject.Parse(response);
+                    return new TikTokVideoDetailsResult(json, 200);
                 }
             }
             catch (Exception ex)
@@ -93,43 +47,66 @@ namespace TikTok_downloader
             return new TikTokVideoDetailsResult(null, 400);
         }
 
-        public static TikTokVideo ParseTikTokInfo(JToken jNode, ITikTokVideoInfoParser parser)
+        private static string ExtractRawVideoInfoFromWebPageCode(string webPageCode)
         {
-            if (jNode == null || parser == null)
+            const string pattern = "<script id=\"__UNIVERSAL_DATA_FOR_REHYDRATION__\" type=\"application/json\">";
+            int n = webPageCode.IndexOf(pattern);
+            if (n >= 0)
             {
-                return null;
+                string t = webPageCode.Substring(n + pattern.Length);
+                n = t.IndexOf("}</script>");
+                if (n > 0)
+                {
+                    return t.Substring(0, n + 1);
+                }
             }
-            string info = jNode.ToString();
-            return parser.Parse(info);
+
+            return null;
         }
 
         public static TikTokVideo ParseTikTokInfo(JObject jInfo)
         {
-            TikTokVideo tikTokVideoOfficial = ParseTikTokInfo(jInfo.Value<JToken>("official"), new TikTokVideoInfoParserOfficial());
-            TikTokVideo tikTokVideoAweme = ParseTikTokInfo(jInfo.Value<JToken>("aweme"), new TikTokVideoInfoParserAweMe());
+            JObject jData = jInfo.Value<JObject>("data");
+            if (jData == null) { return null; }
 
-            if (tikTokVideoOfficial == null)
+            string videoTitle = jData.Value<string>("title");
+            string videoId = jData.Value<string>("id");
+            
+            TikTokVideo video = new TikTokVideo(videoTitle, videoId);
+            int videoDurationSeconds = jData.Value<int>("duration");
+            video.Duration = TimeSpan.FromSeconds(videoDurationSeconds);
+            long videoCreationTime = jData.Value<long>("create_time");
+            video.DateCreation = UnixTimeToDateTime(videoCreationTime);
+            video.ImagePreviewUrl = jData.Value<string>("cover");
+            if (jData.ContainsKey("hdplay"))
             {
-                return tikTokVideoAweme;
+                //Hope it's the best quality.
+                video.FileSize = jData.Value<long>("hd_size");
+                video.FileUrlWithoutWatermark = jData.Value<string>("hdplay");
             }
-            else if (tikTokVideoAweme != null)
+            else if (jData.ContainsKey("play"))
             {
-                tikTokVideoOfficial.FileUrlWithoutWatermark = tikTokVideoAweme.FileUrlWithoutWatermark;
+                video.FileSize = jData.Value<long>("size");
+                video.FileUrlWithoutWatermark = jData.Value<string>("play");
+            }
+            else if (jData.ContainsKey("wmplay"))
+            {
+                //Video might be unplayable.
+                video.FileSize = jData.Value<long>("wm_size");
+                video.FileUrlWithoutWatermark = jData.Value<string>("wmplay");
             }
 
-            return tikTokVideoOfficial;
-        }
-
-        public static string ExtractVideoIdFromUrl(string url)
-        {
-            string pattern = @".+(tiktok\.com).+/video/(\d+)";
-            Regex regex = new Regex(pattern);
-            MatchCollection matches = regex.Matches(url);
-            if (matches.Count > 0 && matches[0].Groups.Count > 2)
+            JObject jAuthor = jData.Value<JObject>("author");
+            if (jAuthor != null)
             {
-                return matches[0].Groups[2].Value;
+                string authorId = jAuthor.Value<string>("id");
+                string authorUniqueId = jAuthor.Value<string>("unique_id");
+                string authorNickName = jAuthor.Value<string>("nickname");
+                video.Author = new TikTokAuthor(authorNickName, authorUniqueId, authorId);
+                video.Author.AvatarImageUrl = jAuthor.Value<string>("avatar");
             }
-            return url;
+
+            return video;
         }
 
         public static DateTime UnixTimeToDateTime(long unixTime)
@@ -143,16 +120,13 @@ namespace TikTok_downloader
     {
         public string Title { get; private set; }
         public string Id { get; private set; }
-        public int ResolutionWidth { get; set; }
-        public int ResolutionHeight { get; set; }
-        public int Bitrate { get; set; }
+        public long FileSize { get; set; }
         public DateTime DateCreation { get; set; }
         public TimeSpan Duration { get; set; }
         public string ImagePreviewUrl { get; set; }
         public Stream ImageData { get; set; }
-        public Image Image;
+        public Image ImagePreview { get; set; }
         public string VideoUrl { get; set; }
-        public string FileUrl { get; set; } = null;
         public string FileUrlWithoutWatermark { get; set; } = null;
         public TikTokAuthor Author { get; set; }
 
@@ -164,10 +138,10 @@ namespace TikTok_downloader
 
         ~TikTokVideo()
         {
-            if (Image != null)
+            if (ImagePreview != null)
             {
-                Image.Dispose();
-                Image = null;
+                ImagePreview.Dispose();
+                ImagePreview = null;
             }
             if (ImageData != null)
             {
@@ -183,8 +157,6 @@ namespace TikTok_downloader
         public string UniqueId { get; private set; }
         public string UserId { get; private set; }
         public string AvatarImageUrl { get; set; }
-        public string Signature { get; set; }
-        public bool IsVerifiedUser { get; set; }
 
         public TikTokAuthor(string nickName, string uniqueId, string userId)
         {

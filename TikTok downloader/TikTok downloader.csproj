@@ -67,12 +67,9 @@
       <DependentUpon>FrameTikTokVideo.cs</DependentUpon>
     </Compile>
     <Compile Include="Helper.cs" />
-    <Compile Include="ITikTokVideoInfoParser.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TikTokApi.cs" />
-    <Compile Include="TikTokVideoInfoParserAweMe.cs" />
-    <Compile Include="TikTokVideoInfoParserOfficial.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>

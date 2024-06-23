@@ -43,9 +43,9 @@ namespace TikTok_downloader
             CenterFrame();
         }
 
-        private async void btnSearchVideoByUrlOrId_Click(object sender, EventArgs e)
+        private async void btnSearchVideoByUrl_Click(object sender, EventArgs e)
         {
-            btnSearchVideoByUrlOrId.Enabled = false;
+            btnSearchVideoByUrl.Enabled = false;
             textBoxUrl.Enabled = false;
 
             if (frameVideo != null)
@@ -54,31 +54,31 @@ namespace TikTok_downloader
                 frameVideo = null;
             }
 
-            string urlOrId = textBoxUrl.Text;
-            if (string.IsNullOrEmpty(urlOrId) || string.IsNullOrWhiteSpace(urlOrId))
+            string url = textBoxUrl.Text;
+            if (string.IsNullOrEmpty(url) || string.IsNullOrWhiteSpace(url))
             {
                 MessageBox.Show("Введите ссылку или ID видео!", "Ошибка!",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
                 textBoxUrl.Enabled = true;
-                btnSearchVideoByUrlOrId.Enabled = true;
-                return;
-            }
-
-            string videoId = TikTokApi.ExtractVideoIdFromUrl(urlOrId);
-            if (string.IsNullOrEmpty(videoId))
-            {
-                MessageBox.Show("Неправильная ссылка!", "Ошибка!",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
-                textBoxUrl.Enabled = true;
-                btnSearchVideoByUrlOrId.Enabled = true;
+                btnSearchVideoByUrl.Enabled = true;
                 return;
             }
 
             TikTokApi api = new TikTokApi();
-            TikTokVideoDetailsResult videoDetailsResult = await Task.Run(() => api.GetVideoDetails(videoId));
+            TikTokVideoDetailsResult videoDetailsResult = await Task.Run(() => api.GetVideoDetails(url));
             if (videoDetailsResult.ErrorCode == 200)
             {
                 TikTokVideo tikTokVideo = await Task.Run(() => TikTokApi.ParseTikTokInfo(videoDetailsResult.Details));
+                await Task.Run(() =>
+                {
+                    FileDownloader d = new FileDownloader() { Url = tikTokVideo.ImagePreviewUrl };
+                    Stream stream = new MemoryStream();
+                    if (d.Download(stream) == 200)
+                    {
+                        tikTokVideo.ImagePreview = Image.FromStream(stream);
+                    }
+                    stream.Close();
+                });
                 frameVideo = new FrameTikTokVideo(tikTokVideo);
                 frameVideo.Parent = panelVideoBkg;
                 frameVideo.DownloadButtonPressed += OnDownloadButtonClick;
@@ -101,7 +101,7 @@ namespace TikTok_downloader
             }
 
             textBoxUrl.Enabled = true;
-            btnSearchVideoByUrlOrId.Enabled = true;
+            btnSearchVideoByUrl.Enabled = true;
         }
 
         private void btnSelectDownloadingDirPath_Click(object sender, EventArgs e)
@@ -196,12 +196,9 @@ namespace TikTok_downloader
         private List<DownloadableItem> GetDownloadableItems(TikTokVideo tikTokVideo)
         {
             List<DownloadableItem> res = new List<DownloadableItem>();
-            if (FileDownloader.GetUrlContentLength(tikTokVideo.FileUrl, out long fileSize) == 200)
+            if (FileDownloader.GetUrlContentLength(tikTokVideo.FileUrlWithoutWatermark, out long fileSize) == 200)
             {
-                res.Add(new DownloadableItem(tikTokVideo.FileUrl, fileSize, true, tikTokVideo));
-            }
-            if (FileDownloader.GetUrlContentLength(tikTokVideo.FileUrlWithoutWatermark, out fileSize) == 200)
-            {
+                tikTokVideo.FileSize = fileSize;
                 res.Add(new DownloadableItem(tikTokVideo.FileUrlWithoutWatermark, fileSize, false, tikTokVideo));
             }
             return res;

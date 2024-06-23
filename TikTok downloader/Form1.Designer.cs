@@ -32,11 +32,13 @@ namespace TikTok_downloader
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.btnSearchVideoByUrlOrId = new System.Windows.Forms.Button();
+            this.btnSearchVideoByUrl = new System.Windows.Forms.Button();
             this.textBoxUrl = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPageSettings = new System.Windows.Forms.TabPage();
+            this.numericUpDownMenuFontSize = new System.Windows.Forms.NumericUpDown();
+            this.label5 = new System.Windows.Forms.Label();
             this.btnSelectBrowser = new System.Windows.Forms.Button();
             this.btnSetDefaultFileNameFormat = new System.Windows.Forms.Button();
             this.btnSelectDownloadingDirPath = new System.Windows.Forms.Button();
@@ -50,21 +52,19 @@ namespace TikTok_downloader
             this.panelVideoBkg = new System.Windows.Forms.Panel();
             this.menuImage = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.miOpenInBrowserToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.label5 = new System.Windows.Forms.Label();
-            this.numericUpDownMenuFontSize = new System.Windows.Forms.NumericUpDown();
             this.groupBox1.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPageSettings.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownMenuFontSize)).BeginInit();
             this.tabPageSearch.SuspendLayout();
             this.menuImage.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownMenuFontSize)).BeginInit();
             this.SuspendLayout();
             // 
             // groupBox1
             // 
             this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox1.Controls.Add(this.btnSearchVideoByUrlOrId);
+            this.groupBox1.Controls.Add(this.btnSearchVideoByUrl);
             this.groupBox1.Controls.Add(this.textBoxUrl);
             this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Location = new System.Drawing.Point(6, 6);
@@ -72,18 +72,18 @@ namespace TikTok_downloader
             this.groupBox1.Size = new System.Drawing.Size(540, 98);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Поиск видео по ссылке или ID";
+            this.groupBox1.Text = "Поиск видео по ссылке";
             // 
-            // btnSearchVideoByUrlOrId
+            // btnSearchVideoByUrl
             // 
-            this.btnSearchVideoByUrlOrId.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnSearchVideoByUrlOrId.Location = new System.Drawing.Point(459, 69);
-            this.btnSearchVideoByUrlOrId.Name = "btnSearchVideoByUrlOrId";
-            this.btnSearchVideoByUrlOrId.Size = new System.Drawing.Size(75, 23);
-            this.btnSearchVideoByUrlOrId.TabIndex = 2;
-            this.btnSearchVideoByUrlOrId.Text = "Искать";
-            this.btnSearchVideoByUrlOrId.UseVisualStyleBackColor = true;
-            this.btnSearchVideoByUrlOrId.Click += new System.EventHandler(this.btnSearchVideoByUrlOrId_Click);
+            this.btnSearchVideoByUrl.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnSearchVideoByUrl.Location = new System.Drawing.Point(459, 69);
+            this.btnSearchVideoByUrl.Name = "btnSearchVideoByUrl";
+            this.btnSearchVideoByUrl.Size = new System.Drawing.Size(75, 23);
+            this.btnSearchVideoByUrl.TabIndex = 2;
+            this.btnSearchVideoByUrl.Text = "Искать";
+            this.btnSearchVideoByUrl.UseVisualStyleBackColor = true;
+            this.btnSearchVideoByUrl.Click += new System.EventHandler(this.btnSearchVideoByUrl_Click);
             // 
             // textBoxUrl
             // 
@@ -99,9 +99,9 @@ namespace TikTok_downloader
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(18, 24);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(195, 13);
+            this.label1.Size = new System.Drawing.Size(140, 13);
             this.label1.TabIndex = 0;
-            this.label1.Text = "Введите ссылку на видео или его ID:";
+            this.label1.Text = "Введите ссылку на видео:";
             // 
             // tabControl1
             // 
@@ -136,6 +136,38 @@ namespace TikTok_downloader
             this.tabPageSettings.Size = new System.Drawing.Size(552, 533);
             this.tabPageSettings.TabIndex = 0;
             this.tabPageSettings.Text = "Настройки";
+            // 
+            // numericUpDownMenuFontSize
+            // 
+            this.numericUpDownMenuFontSize.Location = new System.Drawing.Point(143, 145);
+            this.numericUpDownMenuFontSize.Maximum = new decimal(new int[] {
+            16,
+            0,
+            0,
+            0});
+            this.numericUpDownMenuFontSize.Minimum = new decimal(new int[] {
+            9,
+            0,
+            0,
+            0});
+            this.numericUpDownMenuFontSize.Name = "numericUpDownMenuFontSize";
+            this.numericUpDownMenuFontSize.Size = new System.Drawing.Size(38, 20);
+            this.numericUpDownMenuFontSize.TabIndex = 10;
+            this.numericUpDownMenuFontSize.Value = new decimal(new int[] {
+            9,
+            0,
+            0,
+            0});
+            this.numericUpDownMenuFontSize.ValueChanged += new System.EventHandler(this.numericUpDownMenuFontSize_ValueChanged);
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(6, 147);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(131, 13);
+            this.label5.TabIndex = 9;
+            this.label5.Text = "Размер шрифта в меню:";
             // 
             // btnSelectBrowser
             // 
@@ -264,38 +296,6 @@ namespace TikTok_downloader
             this.miOpenInBrowserToolStripMenuItem.Text = "Открыть в браузере";
             this.miOpenInBrowserToolStripMenuItem.Click += new System.EventHandler(this.miOpenInBrowserToolStripMenuItem_Click);
             // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(6, 147);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(131, 13);
-            this.label5.TabIndex = 9;
-            this.label5.Text = "Размер шрифта в меню:";
-            // 
-            // numericUpDownMenuFontSize
-            // 
-            this.numericUpDownMenuFontSize.Location = new System.Drawing.Point(143, 145);
-            this.numericUpDownMenuFontSize.Maximum = new decimal(new int[] {
-            16,
-            0,
-            0,
-            0});
-            this.numericUpDownMenuFontSize.Minimum = new decimal(new int[] {
-            9,
-            0,
-            0,
-            0});
-            this.numericUpDownMenuFontSize.Name = "numericUpDownMenuFontSize";
-            this.numericUpDownMenuFontSize.Size = new System.Drawing.Size(38, 20);
-            this.numericUpDownMenuFontSize.TabIndex = 10;
-            this.numericUpDownMenuFontSize.Value = new decimal(new int[] {
-            9,
-            0,
-            0,
-            0});
-            this.numericUpDownMenuFontSize.ValueChanged += new System.EventHandler(this.numericUpDownMenuFontSize_ValueChanged);
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -316,9 +316,9 @@ namespace TikTok_downloader
             this.tabControl1.ResumeLayout(false);
             this.tabPageSettings.ResumeLayout(false);
             this.tabPageSettings.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownMenuFontSize)).EndInit();
             this.tabPageSearch.ResumeLayout(false);
             this.menuImage.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownMenuFontSize)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -326,7 +326,7 @@ namespace TikTok_downloader
         #endregion
 
         private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.Button btnSearchVideoByUrlOrId;
+        private System.Windows.Forms.Button btnSearchVideoByUrl;
         private System.Windows.Forms.TextBox textBoxUrl;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TabControl tabControl1;
