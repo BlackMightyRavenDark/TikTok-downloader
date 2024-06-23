@@ -111,7 +111,7 @@ namespace TikTok_downloader
 
 		public static DateTime UnixTimeToDateTime(long unixTime)
 		{
-			DateTime dateTime = new DateTime(1970, 1, 1);
+			DateTime dateTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 			return dateTime.AddSeconds(unixTime);
 		}
 	}
