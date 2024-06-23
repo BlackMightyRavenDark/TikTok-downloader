@@ -59,7 +59,6 @@ namespace TikTok_downloader
 			rect = new RectangleF(0.0f, yPos, size.Width, size.Height);
 			e.Graphics.FillRectangle(Brushes.Black, rect);
 			e.Graphics.DrawString(t, Font, Brushes.White, 0.0f, yPos);
-			yPos += size.Height;
 		}
 
 		private void btnDownload_Click(object sender, EventArgs e)
