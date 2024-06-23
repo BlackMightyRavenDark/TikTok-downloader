@@ -284,7 +284,6 @@ namespace TikTok_downloader
 			frameVideo.btnDownload.Enabled = false;
 
 			DownloadableItem downloadableItem = (sender as ToolStripMenuItem).Tag as DownloadableItem;
-			System.Diagnostics.Debug.WriteLine($"{downloadableItem.Size} | {downloadableItem.Url}");
 			string filePath = GetNumberedFileName(config.DownloadingDirPath +
 				FixFileName(FormatFileName(config.FileNameFormat, downloadableItem)) + ".mp4");
 			int errorCode = await DownloadItem(downloadableItem, filePath);
@@ -305,7 +304,6 @@ namespace TikTok_downloader
 			{
 				double percent = 100.0 / downloadableItem.Size * n;
 				frameVideo.progressBarDownload.Value = (int)percent;
-				System.Diagnostics.Debug.WriteLine($"{n}: {percent}");
 			};
 
 			int res = await Task.Run(() =>
