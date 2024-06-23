@@ -47,23 +47,6 @@ namespace TikTok_downloader
 			return new TikTokVideoDetailsResult(null, 400);
 		}
 
-		private static string ExtractRawVideoInfoFromWebPageCode(string webPageCode)
-		{
-			const string pattern = "<script id=\"__UNIVERSAL_DATA_FOR_REHYDRATION__\" type=\"application/json\">";
-			int n = webPageCode.IndexOf(pattern);
-			if (n >= 0)
-			{
-				string t = webPageCode.Substring(n + pattern.Length);
-				n = t.IndexOf("}</script>");
-				if (n > 0)
-				{
-					return t.Substring(0, n + 1);
-				}
-			}
-
-			return null;
-		}
-
 		public static TikTokVideo ParseTikTokInfo(JObject jInfo)
 		{
 			JObject jData = jInfo.Value<JObject>("data");
