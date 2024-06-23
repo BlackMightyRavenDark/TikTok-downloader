@@ -67,7 +67,7 @@ namespace TikTok_downloader
 			TikTokVideoDetailsResult videoDetailsResult = await Task.Run(() => TikTokApi.GetVideoDetails(url));
 			if (videoDetailsResult.ErrorCode == 200)
 			{
-				TikTokVideo tikTokVideo = await Task.Run(() => TikTokApi.ParseTikTokInfo(videoDetailsResult.Details));
+				TikTokVideo tikTokVideo = await Task.Run(() => TikTokApi.ParseTikTokInfo(videoDetailsResult.Details, url));
 				_ = await tikTokVideo.UpdateImagePreview();
 
 				frameVideo = new FrameTikTokVideo(tikTokVideo);
@@ -147,6 +147,15 @@ namespace TikTok_downloader
 				return;
 			}
 
+			if (frameVideo.VideoInfo == null || frameVideo.VideoInfo.Media == null ||
+				string.IsNullOrEmpty(frameVideo.VideoInfo.VideoUrl) ||
+				string.IsNullOrWhiteSpace(frameVideo.VideoInfo.VideoUrl))
+			{
+				MessageBox.Show("Видео или ссылка не существует!", "Ошибка!",
+					MessageBoxButtons.OK, MessageBoxIcon.Error);
+				return;
+			}
+
 			System.Diagnostics.Process process = new System.Diagnostics.Process();
 			process.StartInfo.FileName = Path.GetFileName(config.BrowserExePath);
 			process.StartInfo.WorkingDirectory = Path.GetFullPath(config.BrowserExePath);
@@ -185,10 +194,15 @@ namespace TikTok_downloader
 		private List<DownloadableItem> GetDownloadableItems(TikTokVideo tikTokVideo)
 		{
 			List<DownloadableItem> res = new List<DownloadableItem>();
-			if (FileDownloader.GetUrlContentLength(tikTokVideo.FileUrlWithoutWatermark, out long fileSize) == 200)
+			if (tikTokVideo.Media != null &&
+				!string.IsNullOrEmpty(tikTokVideo.Media.FileUrl) &&
+				!string.IsNullOrWhiteSpace(tikTokVideo.Media.FileUrl))
 			{
-				tikTokVideo.FileSize = fileSize;
-				DownloadableItem item = new DownloadableItem(tikTokVideo.FileUrlWithoutWatermark, fileSize, false, tikTokVideo);
+				DownloadableItem item = new DownloadableItem(
+					tikTokVideo.Media.FileUrl,
+					tikTokVideo.Media.FileSize,
+					tikTokVideo.Media.WithWatermark,
+					tikTokVideo);
 				res.Add(item);
 			}
 			return res;

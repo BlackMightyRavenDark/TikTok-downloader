@@ -48,48 +48,55 @@ namespace TikTok_downloader
 			return new TikTokVideoDetailsResult(null, 400);
 		}
 
-		public static TikTokVideo ParseTikTokInfo(JObject jInfo)
+		public static TikTokVideo ParseTikTokInfo(JObject jInfo, string videoUrl = null)
 		{
 			JObject jData = jInfo.Value<JObject>("data");
 			if (jData == null) { return null; }
 
 			string videoTitle = jData.Value<string>("title");
 			string videoId = jData.Value<string>("id");
-			
-			TikTokVideo video = new TikTokVideo(videoTitle, videoId);
 			int videoDurationSeconds = jData.Value<int>("duration");
-			video.Duration = TimeSpan.FromSeconds(videoDurationSeconds);
+			TimeSpan duration = TimeSpan.FromSeconds(videoDurationSeconds);
 			long videoCreationTime = jData.Value<long>("create_time");
-			video.DateCreation = UnixTimeToDateTime(videoCreationTime);
-			video.ImagePreviewUrl = jData.Value<string>("cover");
+			DateTime dateCreation = UnixTimeToDateTime(videoCreationTime);
+			string imagePreviewUrl = jData.Value<string>("cover");
+			TikTokMedia media = null;
 			if (jData.ContainsKey("hdplay"))
 			{
 				//Hope it's the best quality.
-				video.FileSize = jData.Value<long>("hd_size");
-				video.FileUrlWithoutWatermark = jData.Value<string>("hdplay");
+				long fileSize = jData.Value<long>("hd_size");
+				string fileUrl = jData.Value<string>("hdplay");
+				media = new TikTokMedia(TikTokMediaType.Video, false, fileSize, fileUrl);
 			}
 			else if (jData.ContainsKey("play"))
 			{
-				video.FileSize = jData.Value<long>("size");
-				video.FileUrlWithoutWatermark = jData.Value<string>("play");
+				long fileSize = jData.Value<long>("size");
+				string fileUrl = jData.Value<string>("play");
+				media = new TikTokMedia(TikTokMediaType.Video, false, fileSize, fileUrl);
 			}
 			else if (jData.ContainsKey("wmplay"))
 			{
 				//Video might be unplayable.
-				video.FileSize = jData.Value<long>("wm_size");
-				video.FileUrlWithoutWatermark = jData.Value<string>("wmplay");
+				long fileSize = jData.Value<long>("wm_size");
+				string fileUrl = jData.Value<string>("wmplay");
+				media = new TikTokMedia(TikTokMediaType.Video, false, fileSize, fileUrl);
 			}
 
 			JObject jAuthor = jData.Value<JObject>("author");
+			TikTokAuthor author = null;
 			if (jAuthor != null)
 			{
 				string authorId = jAuthor.Value<string>("id");
 				string authorUniqueId = jAuthor.Value<string>("unique_id");
 				string authorNickName = jAuthor.Value<string>("nickname");
 				string authorAvatarImageUrl = jAuthor.Value<string>("avatar");
-				video.Author = new TikTokAuthor(authorNickName, authorUniqueId, authorId, authorAvatarImageUrl);
+				author = new TikTokAuthor(authorNickName, authorUniqueId, authorId, authorAvatarImageUrl);
+
+				videoUrl = $"https://www.tiktok.com/@{authorUniqueId}/video/{videoId}";
 			}
 
+			TikTokVideo video = new TikTokVideo(videoTitle, videoId, videoUrl,
+				dateCreation, duration, imagePreviewUrl, author, media);
 			return video;
 		}
 
@@ -104,20 +111,27 @@ namespace TikTok_downloader
 	{
 		public string Title { get; }
 		public string Id { get; }
-		public long FileSize { get; set; }
-		public DateTime DateCreation { get; set; }
-		public TimeSpan Duration { get; set; }
-		public string ImagePreviewUrl { get; set; }
+		public string VideoUrl { get; }
+		public DateTime DateCreation { get; }
+		public TimeSpan Duration { get; }
+		public string ImagePreviewUrl { get; }
 		public Stream ImagePreviewData { get; private set; }
 		public Image ImagePreview { get; private set; }
-		public string VideoUrl { get; set; }
-		public string FileUrlWithoutWatermark { get; set; } = null;
-		public TikTokAuthor Author { get; set; }
+		public TikTokAuthor Author { get; }
+		public TikTokMedia Media { get; }
 
-		public TikTokVideo(string videoTitle, string videoId)
+		public TikTokVideo(string videoTitle, string videoId, string videoUrl,
+			DateTime dateCreation, TimeSpan duration, string imagePreviewUrl,
+			TikTokAuthor author, TikTokMedia media)
 		{
 			Title = videoTitle;
 			Id = videoId;
+			VideoUrl = videoUrl;
+			DateCreation = dateCreation;
+			Duration = duration;
+			ImagePreviewUrl = imagePreviewUrl;
+			Author = author;
+			Media = media;
 		}
 
 		public void Dispose()
@@ -135,15 +149,15 @@ namespace TikTok_downloader
 			}
 		}
 
-        public void DisposeImagePreviewData()
-        {
-            if (ImagePreviewData != null)
-            {
-                ImagePreviewData.Close();
-                ImagePreviewData = null;
-            }
-        }
-        
+		public void DisposeImagePreviewData()
+		{
+			if (ImagePreviewData != null)
+			{
+				ImagePreviewData.Close();
+				ImagePreviewData = null;
+			}
+		}
+		
 		public async Task<int> UpdateImagePreview()
 		{
 			DisposeImagePreview();
@@ -202,6 +216,24 @@ namespace TikTok_downloader
 		{
 			Details = details;
 			ErrorCode = errorCode;
+		}
+	}
+
+	public enum TikTokMediaType { Video }
+
+	public class TikTokMedia
+	{
+		public TikTokMediaType Type { get; }
+		public bool WithWatermark { get; }
+		public long FileSize { get; }
+		public string FileUrl { get; }
+
+		public TikTokMedia(TikTokMediaType type, bool withWatermark, long fileSize, string fileUrl)
+		{
+			Type = type;
+			WithWatermark = withWatermark;
+			FileSize = fileSize;
+			FileUrl = fileUrl;
 		}
 	}
 }
