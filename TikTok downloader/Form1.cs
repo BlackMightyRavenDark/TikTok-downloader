@@ -221,7 +221,7 @@ namespace TikTok_downloader
 			return menu;
 		}
 
-		private async void OnDownloadButtonClick(object sender)
+		private void OnDownloadButtonClick(object sender)
 		{
 			FrameTikTokVideo frame = sender as FrameTikTokVideo;
 			frame.btnDownload.Enabled = false;
@@ -254,7 +254,7 @@ namespace TikTok_downloader
 			frame.btnDownload.Text = "Ждите...";
 			frame.btnDownload.Refresh();
 
-			List<DownloadableItem> downloadableItems = await Task.Run(() => GetDownloadableItems(frame.VideoInfo));
+			List<DownloadableItem> downloadableItems = GetDownloadableItems(frame.VideoInfo);
 			if (downloadableItems.Count > 0)
 			{
 				ContextMenuStrip menu = BuildMenuDownloads(downloadableItems);
