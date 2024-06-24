@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Threading.Tasks;
 using System.Web;
 using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
 
 namespace TikTok_downloader
 {
@@ -60,26 +61,26 @@ namespace TikTok_downloader
 			long videoCreationTime = jData.Value<long>("create_time");
 			DateTime dateCreation = UnixTimeToDateTime(videoCreationTime);
 			string imagePreviewUrl = jData.Value<string>("cover");
-			TikTokMedia media = null;
+			List<TikTokMedia> medias = new List<TikTokMedia>();
 			if (jData.ContainsKey("hdplay"))
 			{
 				//Hope it's the best quality.
 				long fileSize = jData.Value<long>("hd_size");
 				string fileUrl = jData.Value<string>("hdplay");
-				media = new TikTokMedia(TikTokMediaType.Video, false, fileSize, fileUrl);
+				medias.Add(new TikTokMedia(TikTokMediaType.Video, false, fileSize, fileUrl));
 			}
-			else if (jData.ContainsKey("play"))
+			if (jData.ContainsKey("play"))
 			{
 				long fileSize = jData.Value<long>("size");
 				string fileUrl = jData.Value<string>("play");
-				media = new TikTokMedia(TikTokMediaType.Video, false, fileSize, fileUrl);
+				medias.Add(new TikTokMedia(TikTokMediaType.Video, false, fileSize, fileUrl));
 			}
-			else if (jData.ContainsKey("wmplay"))
+			if (jData.ContainsKey("wmplay"))
 			{
 				//Video might be unplayable.
 				long fileSize = jData.Value<long>("wm_size");
 				string fileUrl = jData.Value<string>("wmplay");
-				media = new TikTokMedia(TikTokMediaType.Video, false, fileSize, fileUrl);
+				medias.Add(new TikTokMedia(TikTokMediaType.Video, false, fileSize, fileUrl));
 			}
 
 			JObject jAuthor = jData.Value<JObject>("author");
@@ -96,7 +97,7 @@ namespace TikTok_downloader
 			}
 
 			TikTokVideo video = new TikTokVideo(videoTitle, videoId, videoUrl,
-				dateCreation, duration, imagePreviewUrl, author, media);
+				dateCreation, duration, imagePreviewUrl, author, medias);
 			return video;
 		}
 
@@ -118,11 +119,11 @@ namespace TikTok_downloader
 		public Stream ImagePreviewData { get; private set; }
 		public Image ImagePreview { get; private set; }
 		public TikTokAuthor Author { get; }
-		public TikTokMedia Media { get; }
+		public List<TikTokMedia> Medias { get; }
 
 		public TikTokVideo(string videoTitle, string videoId, string videoUrl,
 			DateTime dateCreation, TimeSpan duration, string imagePreviewUrl,
-			TikTokAuthor author, TikTokMedia media)
+			TikTokAuthor author, List<TikTokMedia> medias)
 		{
 			Title = videoTitle;
 			Id = videoId;
@@ -131,7 +132,7 @@ namespace TikTok_downloader
 			Duration = duration;
 			ImagePreviewUrl = imagePreviewUrl;
 			Author = author;
-			Media = media;
+			Medias = medias;
 		}
 
 		public void Dispose()

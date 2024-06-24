@@ -68,6 +68,7 @@ namespace TikTok_downloader
 			if (videoDetailsResult.ErrorCode == 200)
 			{
 				TikTokVideo tikTokVideo = await Task.Run(() => TikTokApi.ParseTikTokInfo(videoDetailsResult.Details, url));
+				tikTokVideo.Medias?.Sort((x, y) => y.FileSize.CompareTo(x.FileSize));
 				_ = await tikTokVideo.UpdateImagePreview();
 
 				frameVideo = new FrameTikTokVideo(tikTokVideo);
@@ -147,7 +148,7 @@ namespace TikTok_downloader
 				return;
 			}
 
-			if (frameVideo.VideoInfo == null || frameVideo.VideoInfo.Media == null ||
+			if (frameVideo.VideoInfo == null ||
 				string.IsNullOrEmpty(frameVideo.VideoInfo.VideoUrl) ||
 				string.IsNullOrWhiteSpace(frameVideo.VideoInfo.VideoUrl))
 			{
@@ -194,16 +195,14 @@ namespace TikTok_downloader
 		private List<DownloadableItem> GetDownloadableItems(TikTokVideo tikTokVideo)
 		{
 			List<DownloadableItem> res = new List<DownloadableItem>();
-			if (tikTokVideo.Media != null &&
-				!string.IsNullOrEmpty(tikTokVideo.Media.FileUrl) &&
-				!string.IsNullOrWhiteSpace(tikTokVideo.Media.FileUrl))
+			if (tikTokVideo.Medias != null && tikTokVideo.Medias.Count > 0)
 			{
-				DownloadableItem item = new DownloadableItem(
-					tikTokVideo.Media.FileUrl,
-					tikTokVideo.Media.FileSize,
-					tikTokVideo.Media.WithWatermark,
-					tikTokVideo);
-				res.Add(item);
+				foreach (TikTokMedia media in tikTokVideo.Medias)
+				{
+					DownloadableItem item = new DownloadableItem(
+						media.FileUrl, media.FileSize, media.WithWatermark, tikTokVideo);
+					res.Add(item);
+				}
 			}
 			return res;
 		}
