@@ -210,10 +210,13 @@ namespace TikTok_downloader
 		private ContextMenuStrip BuildMenuDownloads(IEnumerable<DownloadableItem> items)
 		{
 			ContextMenuStrip menu = new ContextMenuStrip();
+			int maxLogoLength = GetMaxLogoLength(items);
+			int maxSizeLength = GetMaxSizeLength(items);
 			foreach (DownloadableItem downloadableItem in items)
 			{
-				string formattedFileSize = FormatSize(downloadableItem.Size);
-				string itemTitle = $"{(downloadableItem.IsLogoPresent ? "С логотипом" : "Без логотипа")} ({formattedFileSize})";
+				string logoString = (downloadableItem.IsLogoPresent ? "С логотипом" : "Без логотипа").PadRight(maxLogoLength, ' ');
+				string sizeString = FormatSize(downloadableItem.Size).PadLeft(maxSizeLength, ' ');
+				string itemTitle = $"{logoString} | {sizeString}";
 				ToolStripMenuItem menuItem = new ToolStripMenuItem(itemTitle) { Tag = downloadableItem };
 				menuItem.Click += OnMenuDownloadItemClick;
 				menu.Items.Add(menuItem);
@@ -260,7 +263,7 @@ namespace TikTok_downloader
 				ContextMenuStrip menu = BuildMenuDownloads(downloadableItems);
 				if (menu.Items.Count > 0)
 				{
-					menu.Font = new Font(menu.Font.Name, config.MenuFontSize);
+					menu.Font = new Font("Lucida Console", config.MenuFontSize);
 					Point pt = frame.PointToScreen(new Point(frame.btnDownload.Left + frame.btnDownload.Width, frame.btnDownload.Top));
 					menu.Show(pt.X, pt.Y);
 				}

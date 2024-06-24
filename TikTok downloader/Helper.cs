@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
@@ -97,10 +98,32 @@ namespace TikTok_downloader
 		}
 
 		public static string FormatDateTime(DateTime dateTime)
-        {
+		{
 			string t = dateTime.ToString("yyyy.MM.dd HH:mm:ss");
 			return dateTime.IsGmt() ? $"{t} GMT" : t;
-        }
+		}
+
+		public static int GetMaxLogoLength(IEnumerable<DownloadableItem> items)
+		{
+			int max = 0;
+			foreach (DownloadableItem item in items)
+			{
+				string t = item.IsLogoPresent ? "С логотипом" : "Без логотипа";
+				if (t.Length > max) { max = t.Length; }
+			}
+			return max;
+		}
+
+		public static int GetMaxSizeLength(IEnumerable<DownloadableItem> items)
+		{
+			int max = 0;
+			foreach (DownloadableItem item in items)
+			{
+				string t = FormatSize(item.Size);
+				if (t.Length > max) { max = t.Length; }
+			}
+			return max;
+		}
 
 		public static string FormatSize(long n)
 		{
