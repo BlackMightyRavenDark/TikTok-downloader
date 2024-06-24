@@ -209,8 +209,8 @@ namespace TikTok_downloader
 
 	public class TikTokVideoDetailsResult
 	{
-		public JObject Details { get; private set; }
-		public int ErrorCode { get; private set; }
+		public JObject Details { get; }
+		public int ErrorCode { get; }
 
 		public TikTokVideoDetailsResult(JObject details, int errorCode)
 		{
