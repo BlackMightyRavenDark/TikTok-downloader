@@ -80,7 +80,7 @@ namespace TikTok_downloader
 				//Video might be unplayable.
 				long fileSize = jData.Value<long>("wm_size");
 				string fileUrl = jData.Value<string>("wmplay");
-				medias.Add(new TikTokMedia(TikTokMediaType.Video, false, fileSize, fileUrl));
+				medias.Add(new TikTokMedia(TikTokMediaType.Video, true, fileSize, fileUrl));
 			}
 
 			JObject jAuthor = jData.Value<JObject>("author");
