@@ -9,20 +9,15 @@ namespace TikTok_downloader
 		public const string FILENAME_FORMAT_DEFAULT =
 			"<channel_name> [<year>-<month>-<day> <hour>-<minute>-<second><GMT>] <video_title> [<video_id>]";
 
-		public static string LeadZero(int n)
-		{
-			return n < 10 ? $"0{n}" : n.ToString();
-		}
-
 		public static string FormatFileName(string fmt, DownloadableItem downloadableItem)
 		{
 			string t = fmt.Replace("<channel_name>", downloadableItem.Video.Author.UniqueId)
-				.Replace("<year>", LeadZero(downloadableItem.Video.DateCreation.Year))
-				.Replace("<month>", LeadZero(downloadableItem.Video.DateCreation.Month))
-				.Replace("<day>", LeadZero(downloadableItem.Video.DateCreation.Day))
-				.Replace("<hour>", LeadZero(downloadableItem.Video.DateCreation.Hour))
-				.Replace("<minute>", LeadZero(downloadableItem.Video.DateCreation.Minute))
-				.Replace("<second>", LeadZero(downloadableItem.Video.DateCreation.Second))
+				.Replace("<year>", downloadableItem.Video.DateCreation.Year.ToString())
+				.Replace("<month>", downloadableItem.Video.DateCreation.Month.ToString().PadLeft(2, '0'))
+				.Replace("<day>", downloadableItem.Video.DateCreation.Day.ToString().PadLeft(2, '0'))
+				.Replace("<hour>", downloadableItem.Video.DateCreation.Hour.ToString().PadLeft(2, '0'))
+				.Replace("<minute>", downloadableItem.Video.DateCreation.Minute.ToString().PadLeft(2, '0'))
+				.Replace("<second>", downloadableItem.Video.DateCreation.Second.ToString().PadLeft(2, '0'))
 				.Replace("<GMT>", " GMT")
 				.Replace("<video_id>", downloadableItem.Video.Id);
 			if (!string.IsNullOrEmpty(downloadableItem.Video.Title) && !string.IsNullOrWhiteSpace(downloadableItem.Video.Title))
