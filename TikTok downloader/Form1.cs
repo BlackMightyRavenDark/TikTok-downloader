@@ -4,14 +4,15 @@ using System.Drawing;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using static TikTok_downloader.Helper;
+using TikTokApiLib;
+using static TikTok_downloader.Utils;
 
 namespace TikTok_downloader
 {
 	public partial class Form1 : Form
 	{
 		private FrameTikTokVideo frameVideo = null;
-		private MainConfiguration config;
+		private Configurator config;
 
 		public Form1()
 		{
@@ -20,7 +21,7 @@ namespace TikTok_downloader
 
 		private void Form1_Load(object sender, EventArgs e)
 		{
-			config = new MainConfiguration();
+			config = new Configurator();
 			config.Load();
 			textBoxDownloadingDirPath.Text = config.DownloadingDirPath;
 			textBoxFileNameFormat.Text = config.FileNameFormat;

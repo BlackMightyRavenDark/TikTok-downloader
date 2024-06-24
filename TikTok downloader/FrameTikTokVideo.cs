@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
+using TikTokApiLib;
 
 namespace TikTok_downloader
 {
@@ -37,7 +38,7 @@ namespace TikTok_downloader
 			}
 			if (VideoInfo.DateCreation > DateTime.MinValue)
 			{
-				string dateString = Helper.FormatDateTime(VideoInfo.DateCreation);
+				string dateString = Utils.FormatDateTime(VideoInfo.DateCreation);
 				SizeF sz = e.Graphics.MeasureString(dateString, Font);
 				float x = pictureBoxImagePreview.Width - sz.Width;
 				float y = pictureBoxImagePreview.Height - sz.Height;
